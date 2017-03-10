@@ -57,7 +57,7 @@ public class Lenguajes {
         Methods m = new Methods();
         Boolean isSpace = false;
         char charat;
-        
+        //Hola soy el nuevo commit
         for (int i = 0; i < line.length(); i++) {
                     // Variable para comparar con Regex o patrones
                     String comparador = "" + line.charAt(i);
