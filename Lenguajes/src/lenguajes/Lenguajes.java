@@ -46,6 +46,7 @@ public class Lenguajes {
      // Bandera que indica si encontro algun error
      static boolean error = false;
      static boolean operador = false;
+     static boolean tokenNum = false;
      static String aux = "";
      static int cSimple = 1;
      static int cDoble = 1;
@@ -70,7 +71,8 @@ public class Lenguajes {
                     } else if (estado == -1 && comparador.matches("\\s")) {
                         estado = -1;
                     } else if (estado == -1) {
-                        System.out.println("Error en la linea: " + lineNO + " columna:" + i);
+                        int e = i+1;
+                        System.out.println("Error en la linea: " + lineNO + " columna: " + e);
                         System.out.println("El archivo inicio de mala manera");
                         error = true;
                         i = line.length();
@@ -92,7 +94,8 @@ public class Lenguajes {
                                     }
                                     
                                 } else  {
-                                  System.out.println("Error en la linea: " + lineNO + " columna:" + i + "No viene reservada Tokens");                                    
+                                    int e = i+1;
+                                  System.out.println("Error en la linea: " + lineNO + " columna: " + e + " No viene reservada Tokens");                                    
                                     error = true;
                                     i = line.length();
                                 }
@@ -124,17 +127,18 @@ public class Lenguajes {
                             case 2: {
                                 
                                 
-                                if (comparador.matches("\\d")) {
+                                if (comparador.matches("\\d")&& tokenNum==false) {
                                     estado = 2;
                                     aux += comparador;
                                 } else if (comparador.matches("\\s")) {
                                     //TODO guardar numero de token
-                                    //TODO activar flag de esperar igual
+                                    tokenNum=true;
                                     estado = 2;
                                     
                                 
                                 } else if (comparador.matches("=")){
                                     estado=3;
+                                    tokenNum=false;
                                     if (isAlreadyToken(aux)){
                                         
                                     }else
@@ -145,7 +149,8 @@ public class Lenguajes {
                                     
                                 }
                                 else {
-                                    System.out.println("Error en la linea: " + lineNO + " columna:" + i + "id de token incorrecto");                                    
+                                    int e = i+1;
+                                    System.out.println("Error en la linea: " + lineNO + " columna: " + e + " id de token incorrecto");                                    
                                     error = true;
                                     i = line.length();
                                 }
@@ -176,7 +181,8 @@ public class Lenguajes {
                                          operador=true;
                                      }
                                      else{
-                                         System.out.println("Error en la linea: " + lineNO + " columna:" + i + "no pueden venir 2 operadores seguidos");                                    
+                                         int e = i+1;
+                                         System.out.println("Error en la linea: " + lineNO + " columna: " + e + " no pueden venir 2 operadores seguidos");                                    
                                          error = true;
                                          i = line.length();
                                      }
@@ -185,6 +191,7 @@ public class Lenguajes {
                                      estado = 1;
                                      //guardar aux
                                      operador=false;
+                                     aux="";
                                  } else if (comparador.matches("\\(")){
                                      estado=4;
                                      aux+=comparador;
@@ -236,7 +243,8 @@ public class Lenguajes {
                                          operador=true;
                                      }
                                      else{
-                                         System.out.println("Error en la linea: " + lineNO + " columna:" + i + "no pueden venir 2 operadores seguidos");                                    
+                                         int e = i+1;
+                                         System.out.println("Error en la linea: " + lineNO + " columna: " + e + " no pueden venir 2 operadores seguidos");                                    
                                          error = true;
                                          i = line.length();
                                      }
@@ -244,6 +252,7 @@ public class Lenguajes {
                                  } else if (comparador.matches(";")&& parentesis==0){
                                      estado = 1;
                                      //guardar aux
+                                     aux="";
                                  } else if(comparador.matches("\"")){
                                      estado=5;
                                      aux+=comparador;
@@ -254,7 +263,8 @@ public class Lenguajes {
                                      operador=false;
                                  }
                                  else {
-                                     System.out.println("Error en la linea: " + lineNO + " columna:" + i + "no cerro todos los parentesis");                                    
+                                     int e = i+1;
+                                     System.out.println("Error en la linea: " + lineNO + " columna: " + e + " no cerro todos los parentesis");                                    
                                          error = true;
                                          i = line.length();
                                  }
@@ -273,12 +283,14 @@ public class Lenguajes {
                                      aux+=comparador;
                                      cDoble++;
                                  } else if (comparador.matches("[a-z]|[A-Z]|\\d")||cDoble==0){
-                                     System.out.println("Error en la linea: " + lineNO + " columna:" + i + "mas de un caracter");                                    
+                                     int e = i+1;
+                                     System.out.println("Error en la linea: " + lineNO + " columna: " + e + " no cerro comillas");                                    
                                          error = true;
                                          i = line.length();
                                  }
                                  else{
-                                      System.out.println("Error en la linea: " + lineNO + " columna:" + i + "no cerro comillas");                                    
+                                     int e = i+1;
+                                      System.out.println("Error en la linea: " + lineNO + " columna: " + e + " no cerro comillas");                                    
                                          error = true;
                                          i = line.length();
                                  }
@@ -295,23 +307,22 @@ public class Lenguajes {
                                      aux+=comparador;
                                      cSimple++;
                                  } else if (comparador.matches("[a-z]|[A-Z]|\\d")||cSimple==0){
-                                     System.out.println("Error en la linea: " + lineNO + " columna:" + i + "mas de un caracter");                                    
+                                     int e = i+1;
+                                     System.out.println("Error en la linea: " + lineNO + " columna: " + e + " no cerro comilla");                                    
                                          error = true;
                                          i = line.length();
                                  }
                                  else{
-                                      System.out.println("Error en la linea: " + lineNO + " columna:" + i + "no cerro comillas");                                    
+                                     int e = i+1;
+                                      System.out.println("Error en la linea: " + lineNO + " columna: " + e + " no cerro comilla");                                    
                                          error = true;
                                          i = line.length();
                                  }
                                 break;
-                                
-                                
-                                
-                            
-                            
+                           
                             default: {
-                                System.out.println("Error en la linea: " + lineNO + " columna:" + i);
+                                int e = i+1;
+                                System.out.println("Error en la linea: " + lineNO + " columna: " + e);
                                 error = true;
                                 i = line.length();
                                 break;
@@ -320,29 +331,7 @@ public class Lenguajes {
                     }
                 }
     }
-    public static void getScan(char entry){
-        
-        switch (entry){
-            case '(':
-                
-            break;
-            case ')':
-                
-            break;
-            case '{':
-                
-            break;
-            case '}':
-                
-            break;
-            
-            default:
-                
-            break;
-            
-        }
-        
-    }
+    
     public static void readFile(){
         String path = "C:\\Users\\Rodrigo\\Documents\\Lenguajes\\tronadores-lite\\pruebaR.PRO";
         FileInputStream inputstream;
