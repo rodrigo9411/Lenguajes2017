@@ -316,22 +316,32 @@ public class Lenguajes {
                         break;
                     }
 
-                    // estado 11: aun busca reconocer el id de la accion o el parentesis
+                    // aun busca reconocer el id de la accion o el parentesis; en caso reconosca el ID se asegura que no sea el de ERROR
                     case 11: {
                         if (comparador.matches("[a-z]|[A-Z]|_|\\d")) {
                             estado = 11;
                             aux += comparador;
                         } else if (comparador.matches("\\s")) {
-                            estado = 12;
+                            if (m.isERROR(aux)) {
+                                estado = 30;
+                            } else {
+                                estado = 12;
+                            }
                             // para guardar el nombre creare un dict dentro de un dict que estara en una lista
                         } else if (line.charAt(i) == '(') {
-                            estado = 13;
+                            // para guardar el nombre creare un dict dentro de un dict que estara en una lista
+                            if (m.isERROR(aux)) {
+                                estado = 30;
+                            } else {
+                                estado = 13;
+                            }
                             break;
                         } else {
                             System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
                             error = true;
                             i = line.length();
                         }
+                        break;
                     }
 
                     // revisa que se abra el parentesis o se come el espacio
@@ -415,13 +425,155 @@ public class Lenguajes {
                     // Se come los espacios
                     case 17: {
                         if (line.charAt(i) == '=') {
-                                    // Guarda en variable para luego agregar 
+                            // Guarda en variable para luego agregar 
                             // al dict el numero de accion
                             estado = 18;
                         } else if (comparador.matches("\\s")) {
                             estado = 17;
                         } else {
-                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i+1));
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    // Aqui espera que se abran comillas, ya sean simples o dobles
+                    // se come los espacios
+                    case 18: {
+                        if (comparador.matches("\\s")) {
+                            estado = 18;
+                        } else if (line.charAt(i) == '\'') {
+                            estado = 20;
+                        } else if (line.charAt(i) == '"') {
+                            estado = 19;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    // se come los espacios espera un tipo de ID dentro de la doble comilla
+                    case 19: {
+                        if (comparador.matches("\\s")) {
+                            estado = 19;
+                        } else if (comparador.matches("[a-z]|[A-Z]|_")) {
+                            aux = comparador;
+                            estado = 21;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    // se come los espacios espera un tipo de ID dentro de la comilla simple
+                    case 20: {
+                        if (comparador.matches("\\s")) {
+                            estado = 20;
+                        } else if (comparador.matches("[a-z]|[A-Z]|_")) {
+                            aux = comparador;
+                            estado = 23;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    // salta con los espacios espera un tipo de ID dentro de la doble comilla
+                    case 21: {
+                        if (comparador.matches("\\s")) {
+                            estado = 22;
+                        } else if (comparador.matches("[a-z]|[A-Z]|_|\\d")) {
+                            aux += comparador;
+                            estado = 21;
+                        } else if (line.charAt(i) == '"') {
+                            estado = 25;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    // se come los espacios espera el cierre de la doble comilla
+                    case 22: {
+                        if (comparador.matches("\\s")) {
+                            estado = 22;
+                        } else if (line.charAt(i) == '"') {
+                            estado = 25;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    // salta con los espacios espera un tipo de ID dentro de la comilla simple
+                    case 23: {
+                        if (comparador.matches("\\s")) {
+                            estado = 24;
+                        } else if (comparador.matches("[a-z]|[A-Z]|_|\\d")) {
+                            aux += comparador;
+                            estado = 23;
+                        } else if (line.charAt(i) == '\'') {
+                            estado = 25;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    // se come los espacios espera el cierre de la comilla simple
+                    case 24: {
+                        if (comparador.matches("\\s")) {
+                            estado = 24;
+                        } else if (line.charAt(i) == '\'') {
+                            estado = 25;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    // en este punto es donde guarda en el diccionario de acciones el numero de accion y su contenido
+                    case 25: {
+                        if (comparador.matches("\\s")) {
+                            estado = 25;
+                        } else if (comparador.matches("\\d")) {
+                            // GUARDA
+                            estado = 16;
+                        } else if (line.charAt(i) == '}') {
+                            //GUARDA
+                            estado = 26;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    // se come los vacios y salta hasta que lea un inicio de ID
+                    case 26: {
+                        if (comparador.matches("\\s")) {
+                            estado = 26;
+                        } else if (comparador.matches("[a-z]|[A-Z]|_")) {
+                            aux = comparador;
+                            estado = 11;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
                             error = true;
                             i = line.length();
                         }

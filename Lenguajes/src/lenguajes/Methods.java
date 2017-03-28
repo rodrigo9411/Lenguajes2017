@@ -17,6 +17,10 @@ public class Methods {
     public boolean isACCIONES(String line) {
         return line.equalsIgnoreCase("acciones");
     }
+    
+    public boolean isERROR(String line){
+        return line.equalsIgnoreCase("error");
+    }
 
     public boolean isTOKENS(String line) {
         String pattern = "(T|t)(O|o)(K|k)(E|e)(N|n)(S|s)";
