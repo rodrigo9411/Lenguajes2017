@@ -323,16 +323,20 @@ public class Lenguajes {
                             aux += comparador;
                         } else if (comparador.matches("\\s")) {
                             if (m.isERROR(aux)) {
+                                // Estado 30 busca el error
                                 estado = 30;
                             } else {
+                                // Sigue quitando los espacios
                                 estado = 12;
                             }
                             // para guardar el nombre creare un dict dentro de un dict que estara en una lista
                         } else if (line.charAt(i) == '(') {
                             // para guardar el nombre creare un dict dentro de un dict que estara en una lista
                             if (m.isERROR(aux)) {
+                                // Estado 30 busca el error
                                 estado = 30;
                             } else {
+                                //Sigue con la busqueda del cierre del parentesis
                                 estado = 13;
                             }
                             break;
