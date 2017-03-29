@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.*;
 
 /**
  *
@@ -36,6 +37,17 @@ public class Lenguajes {
     }
     static int estado = -1;
 
+    // En este diccionario de diccionario se guardaran las acciones
+    static public Map<String, Map<String, String>> acciones_diccionario = new HashMap<>();
+    // En este diccionario se guarda cada uno de los ids de las acciones
+    static public Map<String, String> action;
+    //Variable que guarda el nombre de la accion
+    static public String name_action = "";
+    // Variable que guarda los ID's de la accion
+    static public String name_id_action = "";
+    // Variable que guarda el numero del ID de la accion
+    static String num = ""; //Sirve para manejar el ID Numerico, acciones lo usa
+
     // Bandera me indica si ya paso por esa palabra reservada para que no se repita
     static boolean tokens = false;
     // Bandera me indica si ya paso por esa palabra reservada para que no se repita
@@ -44,8 +56,7 @@ public class Lenguajes {
     static boolean error = false;
     static boolean operador = false;
     static boolean tokenNum = false;
-    static String aux = ""; //Sirve para manejar la variable de ID
-    static String num = ""; //Sirve para manejar el ID Numerico, acciones lo usa
+    static String aux = ""; //Sirve para manejar la variable de ID    
     static int cSimple = 1;
     static int cDoble = 1;
     static int parentesis = 0;
@@ -322,6 +333,7 @@ public class Lenguajes {
                             estado = 11;
                             aux += comparador;
                         } else if (comparador.matches("\\s")) {
+                            name_action = aux; //guarda el nombre de action
                             if (m.isERROR(aux)) {
                                 // Estado 30 busca el error
                                 estado = 30;
@@ -331,12 +343,13 @@ public class Lenguajes {
                             }
                             // para guardar el nombre creare un dict dentro de un dict que estara en una lista
                         } else if (line.charAt(i) == '(') {
+                            name_action = aux; //guarda el nombre de action
                             // para guardar el nombre creare un dict dentro de un dict que estara en una lista
                             if (m.isERROR(aux)) {
                                 // Estado 30 busca el error
                                 estado = 30;
                             } else {
-                                //Sigue con la busqueda del cierre del parentesis
+                                //Sigue con la busqueda del cierre del parentesis                                                                
                                 estado = 13;
                             }
                             break;
@@ -379,6 +392,8 @@ public class Lenguajes {
                     // Revisa si abre parentesis
                     case 14: {
                         if (line.charAt(i) == '{') {
+                            // Instancia el diccionario de IDs para que se pueda usar
+                            action = new HashMap<>();
                             estado = 15;
                         } else if (comparador.matches("\\s")) {
                             estado = 14;
@@ -492,11 +507,13 @@ public class Lenguajes {
                     // salta con los espacios espera un tipo de ID dentro de la doble comilla
                     case 21: {
                         if (comparador.matches("\\s")) {
+                            name_id_action = aux; // guarda el id de la accion
                             estado = 22;
                         } else if (comparador.matches("[a-z]|[A-Z]|_|\\d")) {
                             aux += comparador;
                             estado = 21;
                         } else if (line.charAt(i) == '"') {
+                            name_id_action = aux; // guarda el id de la accion
                             estado = 25;
                         } else {
                             System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
@@ -523,11 +540,13 @@ public class Lenguajes {
                     // salta con los espacios espera un tipo de ID dentro de la comilla simple
                     case 23: {
                         if (comparador.matches("\\s")) {
+                            name_id_action = aux; // guarda el id de la accion
                             estado = 24;
                         } else if (comparador.matches("[a-z]|[A-Z]|_|\\d")) {
                             aux += comparador;
                             estado = 23;
                         } else if (line.charAt(i) == '\'') {
+                            name_id_action = aux; // guarda el id de la accion
                             estado = 25;
                         } else {
                             System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
@@ -556,10 +575,13 @@ public class Lenguajes {
                         if (comparador.matches("\\s")) {
                             estado = 25;
                         } else if (comparador.matches("\\d")) {
-                            // GUARDA
+                            // GUARDA                            
+                            action.putIfAbsent(num, name_id_action);
+                            num = "" + comparador;
                             estado = 16;
                         } else if (line.charAt(i) == '}') {
                             //GUARDA
+                            action.putIfAbsent(num, name_id_action);
                             estado = 26;
                         } else {
                             System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
