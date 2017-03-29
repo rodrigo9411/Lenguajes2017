@@ -394,6 +394,8 @@ public class Lenguajes {
                         if (line.charAt(i) == '{') {
                             // Instancia el diccionario de IDs para que se pueda usar
                             action = new HashMap<>();
+                            // Agrega al diccionario de diccionarios de acciones el nuevo diccionario de acciones
+                            acciones_diccionario.putIfAbsent(name_action, action);
                             estado = 15;
                         } else if (comparador.matches("\\s")) {
                             estado = 14;
