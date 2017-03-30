@@ -60,12 +60,16 @@ public class Lenguajes {
     static int cSimple = 1;
     static int cDoble = 1;
     static int parentesis = 0;
+    static String nodoActual;
     static ArrayList<String> tokenNos = new ArrayList<String>();
+    static ArrayList<String> expresionesRegulares = new ArrayList<String>();
+    static boolean nuevaLinea = false; //revisar bien lo de nueva linea
 
     public static void scanLine(String line, String lineNO) {
         Methods m = new Methods();
         Boolean isSpace = false;
         char charat;
+        nodoActual="";
         //Hola soy el nuevo commit
         for (int i = 0; i < line.length(); i++) {
             // Variable para comparar con Regex o patrones
@@ -91,13 +95,15 @@ public class Lenguajes {
                     // inicia buscando el id de "TOKENS"
                     case 0: {
                         if (comparador.matches("[a-z]|[A-Z]|_|\\d") && m.isTOKENS(aux) == false) {
+                            nuevaLinea=false;
                             estado = 0;
                             aux += comparador;
-                        } else if (comparador.matches("\\s")) {
+                        } else if (comparador.matches("\\s")|| nuevaLinea) {
+                            nuevaLinea=false;
                             if (m.isTOKENS(aux)) {
                                 estado = 1;
                                 tokens = true;
-                                aux = "";
+                                aux = comparador;
                             } else if (m.isACCIONES(aux)) {
                                 estado = 10;
                                 acciones = true;
@@ -120,7 +126,7 @@ public class Lenguajes {
                         if (comparador.matches("[a-z]|[A-Z]")) {
                             estado = 1;
                             aux += comparador;
-                        } else if (comparador.matches("\\s")) {
+                        } else if (comparador.matches("\\s")|| nuevaLinea) {
                             if (m.isTOKEN(aux)) {
                                 estado = 2;
                                 aux = "";
@@ -146,9 +152,13 @@ public class Lenguajes {
                             estado = 3;
                             tokenNum = false;
                             if (isAlreadyToken(aux)) {
-
+                                int e = i + 1;
+                                System.out.println("Error en la linea: " + lineNO + " columna: " + e + " id de token ya declarado");
+                                error = true;
+                            i = line.length();
                             } else {
                                 tokenNos.add(aux);
+                                nodoActual = aux;
                                 aux = "";
                             }
 
@@ -169,7 +179,7 @@ public class Lenguajes {
                         } else if (comparador.matches("\\s")) {
                             //guardar conjunto para comprobar
                             estado = 3;
-                            aux += " ";
+                            aux += comparador;
 
                         } else if (comparador.matches("\\*|\\+|\\?")) {
                             // comprobar si existe
@@ -188,26 +198,36 @@ public class Lenguajes {
 
                         } else if (comparador.matches(";")) {
                             estado = 1;
-                            //guardar aux
+                            expresionesRegulares.add(aux);
                             operador = false;
                             aux = "";
                         } else if (comparador.matches("\\(")) {
+                            //Guardar nombre tambien
                             estado = 4;
                             aux += comparador;
                             parentesis++;
                             operador = false;
                         } else if (comparador.matches("\"")) {
+                            //Guardar nombre tambien
                             estado = 5;
                             aux += comparador;
                             operador = false;
                         } else if (comparador.matches("\'")) {
+                            //Guardar nombre tambien
                             estado = 6;
                             aux += comparador;
                             operador = false;
                         }
+                        else if (comparador.matches("\\|")) {
+                            //Guardar nombre tambien
+                            estado = 3;
+                            aux += comparador;
+                            operador = false;
+                        }
+
 
                         break;
-                    case 4:
+                    case 4://parentesis
                         if (comparador.matches("[a-z]|[A-Z]|_|\\d")) {
                             estado = 4;
                             aux += comparador;
@@ -231,7 +251,7 @@ public class Lenguajes {
                             //guardar conjunto para comprobar
                             estado = 3;
                             operador = false;
-                            aux += " ";
+                            aux += comparador;
 
                         } else if (comparador.matches("\\*|\\+|\\?")) {
                             // comprobar si existe
@@ -248,6 +268,7 @@ public class Lenguajes {
 
                         } else if (comparador.matches(";") && parentesis == 0) {
                             estado = 1;
+                            expresionesRegulares.add(aux);
                             //guardar aux
                             aux = "";
                         } else if (comparador.matches("\"")) {
@@ -258,6 +279,11 @@ public class Lenguajes {
                             estado = 6;
                             aux += comparador;
                             operador = false;
+                        } else if (comparador.matches("\\|")) {
+                            //Guardar nombre tambien
+                            estado = 4;
+                            aux += comparador;
+                            operador = false;
                         } else {
                             int e = i + 1;
                             System.out.println("Error en la linea: " + lineNO + " columna: " + e + " no cerro todos los parentesis");
@@ -266,15 +292,19 @@ public class Lenguajes {
                         }
 
                         break;
-                    case 5:
+                    case 5://comillas dobles
 
                         if (comparador.matches("[a-z]|[A-Z]|\\d") || cDoble != 0) {
                             estado = 5;
                             aux += comparador;
                             cDoble--;
 
-                        } else if (comparador.matches("\"")) {
+                        } else if (comparador.matches("\"") && parentesis == 0) {
                             estado = 3;
+                            aux += comparador;
+                            cDoble++;
+                        } else if (comparador.matches("\"")&& parentesis != 0) {
+                            estado = 4;
                             aux += comparador;
                             cDoble++;
                         } else if (comparador.matches("[a-z]|[A-Z]|\\d") || cDoble == 0) {
@@ -290,14 +320,18 @@ public class Lenguajes {
                         }
 
                         break;
-                    case 6:
+                    case 6://comillas simples
                         if (comparador.matches("[a-z]|[A-Z]|\\d") || cSimple != 0) {
                             estado = 6;
                             aux += comparador;
                             cSimple--;
 
-                        } else if (comparador.matches("\'")) {
+                        } else if (comparador.matches("\'")&& parentesis == 0 ) {
                             estado = 3;
+                            aux += comparador;
+                            cSimple++;
+                        }else if (comparador.matches("\'")&& parentesis != 0) {
+                            estado = 4;
                             aux += comparador;
                             cSimple++;
                         } else if (comparador.matches("[a-z]|[A-Z]|\\d") || cSimple == 0) {
@@ -618,10 +652,18 @@ public class Lenguajes {
                 }
             }
         }
+        nuevaLinea = true;
+        if(!error){
+            scanErs(expresionesRegulares);
+        }
+    }
+    
+    public static void scanErs(ArrayList<String> ers){
+        
     }
 
     public static void readFile() {
-        String path = "C:\\Users\\Rodrigo\\Documents\\Lenguajes\\tronadores-lite\\pruebaR.PRO";
+        String path = "C:\\Users\\Rodrigo\\Documents\\Lenguajes\\PRUEBAS DE LENGUAJES\\FACILITO.txt";
         FileInputStream inputstream;
         Scanner sc;
         String line = "";
