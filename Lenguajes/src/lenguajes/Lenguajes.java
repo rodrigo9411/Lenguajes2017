@@ -69,7 +69,7 @@ public class Lenguajes {
         Methods m = new Methods();
         Boolean isSpace = false;
         char charat;
-        nodoActual="";
+        nodoActual = "";
         //Hola soy el nuevo commit
         for (int i = 0; i < line.length(); i++) {
             // Variable para comparar con Regex o patrones
@@ -95,11 +95,11 @@ public class Lenguajes {
                     // inicia buscando el id de "TOKENS"
                     case 0: {
                         if (comparador.matches("[a-z]|[A-Z]|_|\\d") && m.isTOKENS(aux) == false) {
-                            nuevaLinea=false;
+                            nuevaLinea = false;
                             estado = 0;
                             aux += comparador;
-                        } else if (comparador.matches("\\s")|| nuevaLinea) {
-                            nuevaLinea=false;
+                        } else if (comparador.matches("\\s") || nuevaLinea) {
+                            nuevaLinea = false;
                             if (m.isTOKENS(aux)) {
                                 estado = 1;
                                 tokens = true;
@@ -126,7 +126,7 @@ public class Lenguajes {
                         if (comparador.matches("[a-z]|[A-Z]")) {
                             estado = 1;
                             aux += comparador;
-                        } else if (comparador.matches("\\s")|| nuevaLinea) {
+                        } else if (comparador.matches("\\s") || nuevaLinea) {
                             if (m.isTOKEN(aux)) {
                                 estado = 2;
                                 aux = "";
@@ -155,7 +155,7 @@ public class Lenguajes {
                                 int e = i + 1;
                                 System.out.println("Error en la linea: " + lineNO + " columna: " + e + " id de token ya declarado");
                                 error = true;
-                            i = line.length();
+                                i = line.length();
                             } else {
                                 tokenNos.add(aux);
                                 nodoActual = aux;
@@ -217,14 +217,12 @@ public class Lenguajes {
                             estado = 6;
                             aux += comparador;
                             operador = false;
-                        }
-                        else if (comparador.matches("\\|")) {
+                        } else if (comparador.matches("\\|")) {
                             //Guardar nombre tambien
                             estado = 3;
                             aux += comparador;
                             operador = false;
                         }
-
 
                         break;
                     case 4://parentesis
@@ -303,7 +301,7 @@ public class Lenguajes {
                             estado = 3;
                             aux += comparador;
                             cDoble++;
-                        } else if (comparador.matches("\"")&& parentesis != 0) {
+                        } else if (comparador.matches("\"") && parentesis != 0) {
                             estado = 4;
                             aux += comparador;
                             cDoble++;
@@ -326,11 +324,11 @@ public class Lenguajes {
                             aux += comparador;
                             cSimple--;
 
-                        } else if (comparador.matches("\'")&& parentesis == 0 ) {
+                        } else if (comparador.matches("\'") && parentesis == 0) {
                             estado = 3;
                             aux += comparador;
                             cSimple++;
-                        }else if (comparador.matches("\'")&& parentesis != 0) {
+                        } else if (comparador.matches("\'") && parentesis != 0) {
                             estado = 4;
                             aux += comparador;
                             cSimple++;
@@ -642,6 +640,338 @@ public class Lenguajes {
                         break;
                     }
 
+                    // ---------------------------------------------------------
+                    // Inicia en el estado 30 los conjuntos
+                    case 30: {
+                        if (comparador.matches("\\s")) {
+                            estado = 30;
+                        } else if (line.charAt(i) == '{') {
+                            estado = 31;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    // busca si es un chr o una '
+                    case 31: {
+                        if (comparador.matches("\\s")) {
+                            estado = 31;
+                        } else if (line.charAt(i) == '\'') {
+                            estado = 32;
+                        } else if (line.charAt(i) == 'c' || line.charAt(i) == 'C') {
+                            estado = 41;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    // toma la ruta de la comilla simple
+                    case 32: {
+                        if (comparador.matches("\\w")) {
+                            estado = 33;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    // revisa si se cierra la comilla
+                    case 33: {
+                        if (line.charAt(i) == '\'') {
+                            estado = 34;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    // revisa si repite con un + o si viene un . o si se cierra } y se come los espacios
+                    case 34: {
+                        if (comparador.matches("\\s")) {
+                            estado = 34;
+                        } else if (line.charAt(i) == '.') {
+                            estado = 36;
+                        } else if (line.charAt(i) == '+') {
+                            estado = 31;
+                        } else if (line.charAt(i) == '}') {
+                            estado = 35;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    case 36: {
+                        if (line.charAt(i) == '.') {
+                            estado = 37;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    case 37: {
+                        if (line.charAt(i) == '\'') {
+                            estado = 37;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    case 38: {
+                        if (comparador.matches("\\w")) {
+                            estado = 39;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    case 39: {
+                        if (line.charAt(i) == '\'') {
+                            estado = 40;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    case 40: {
+                        if (line.charAt(i) == '+') {
+                            estado = 31;
+                        } else if (line.charAt(i) == '}') {
+                            estado = 35;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    case 41: {
+                        if (line.charAt(i) == 'h' || line.charAt(i) == 'H') {
+                            estado = 42;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    case 42: {
+                        if (line.charAt(i) == 'r' || line.charAt(i) == 'R') {
+                            estado = 43;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    case 43: {
+                        if (line.charAt(i) == '(') {
+                            estado = 44;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    case 44: {
+                        if (comparador.matches("\\d")) {
+                            estado = 45;
+                        } else if (comparador.matches("\\s")) {
+                            estado = 44;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+                    
+                    case 45: {
+                        if (comparador.matches("\\d")) {
+                            estado = 45;
+                        } else if (comparador.matches("\\s")) {
+                            estado = 46;
+                        } else if (line.charAt(i) == ')') {
+                            estado = 47;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+                    
+                    case 46:{
+                        if (comparador.matches("\\s")){
+                            estado = 46;
+                        } else if (line.charAt(i) == ')'){
+                            estado = 47;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+                    
+                    case 47:{
+                        if (comparador.matches("\\s")){
+                            estado = 47;
+                        } else if (line.charAt(i) == '+'){
+                            estado = 31;
+                        } else if (line.charAt(i) == '}'){
+                            estado = 35;
+                        } else if (line.charAt(i) == '.'){
+                            estado = 48;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+                    
+                    case 48:{
+                        if (line.charAt(i) == '.'){
+                            estado = 49;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+                    
+                    case 49:{
+                        if (line.charAt(i) == 'c' || line.charAt(i) == 'C'){
+                            estado = 50;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+                    
+                    case 50: {
+                        if (line.charAt(i) == 'h' || line.charAt(i) == 'H') {
+                            estado = 51;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
+                    case 51: {
+                        if (line.charAt(i) == 'r' || line.charAt(i) == 'R') {
+                            estado = 52;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    } 
+                    
+                    case 52: {
+                        if (line.charAt(i) == '(') {
+                            estado = 53;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+                    
+                    case 53:{
+                        if (comparador.matches("\\s")) {
+                            estado = 53;
+                        } else if (comparador.matches("\\d")) {
+                            estado = 54;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+                    
+                    case 54:{
+                        if (comparador.matches("\\s")) {
+                            estado = 55;
+                        } else if (comparador.matches("\\d")) {
+                            estado = 54;
+                        } else if (line.charAt(i) == ')') {
+                            estado = 56;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+                    
+                    case 55:{
+                        if (comparador.matches("\\s")) {
+                            estado = 55;
+                        } else if (line.charAt(i) == ')') {
+                            estado = 56;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+                    
+                    case 56:{
+                        if (comparador.matches("\\s")) {
+                            estado = 56;
+                        } else if (line.charAt(i) == '+') {
+                            estado = 31;
+                        } else if (line.charAt(i) == '}') {
+                            estado = 31;
+                        } else {
+                            System.out.println("Error en la linea: " + lineNO + " columna:" + (i + 1));
+                            error = true;
+                            i = line.length();
+                        }
+                        break;
+                    }
+
                     default: {
                         int e = i + 1;
                         System.out.println("Error en la linea: " + lineNO + " columna: " + e);
@@ -653,13 +983,13 @@ public class Lenguajes {
             }
         }
         nuevaLinea = true;
-        if(!error){
+        if (!error) {
             scanErs(expresionesRegulares);
         }
     }
-    
-    public static void scanErs(ArrayList<String> ers){
-        
+
+    public static void scanErs(ArrayList<String> ers) {
+
     }
 
     public static void readFile() {
